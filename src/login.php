@@ -1,48 +1,55 @@
 <?php
 session_start();
-require_once __DIR__ . "/User.php";
 
+require_once __DIR__ . "/User.php";
+include __DIR__ . '/header.php';
+
+ini_set('display_errors', '1');
 $user = new User();
+//var_dump($_POST);
+
+if (isset($_POST['connexion'])) {
+
+    if (!empty($email = htmlspecialchars(strip_tags($_POST['email']))) && !empty($pwd = htmlspecialchars(strip_tags($_POST['password'])))) {
+
+        $currentuser = $user->connectUser($email, $pwd);
+
+        if ($currentuser) {
+
+            $_SESSION['_user'] = $currentuser->getIdUser();
+            $_SESSION['_email'] = $currentuser->getIdEmail();
+            $_SESSION['_nom'] = $currentuser->getIdNom();
+            $_SESSION['_prenom'] = $currentuser->getIdPrenom();
+            $user->redirect('/public/index.php');
+
+        } else {
+            echo "<h4 style='color:red'>Email ou Mot de Passe incorrect</h4>";
+        }
+
+    }
+
+}
+
+if (isset($_POST['creation'])) {
+    header("Location: ./register.php");
+}
 
 ?>
 
-<!DOCTYPE html>
-<html lang="fr">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taches PHP MySQL</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<form method="POST">
+    <div class="form-group">
+        <label for="email">Adresse Email</label>
+        <input type="email" class="form-control" id="email" name='email' placeholder="Saisir votre Adresse">
 
-    <!-- <link rel="stylesheet" href="./styles/style.css"> -->
-</head>
+    </div>
+    <div class="form-group">
+        <label for="password">Mot de Passe</label>
+        <input type="password" class="form-control" id="password" name='password' placeholder="Mot de Passe">
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary" name='connexion'>Se connecter</button>
+    <button type="submit" class="btn btn-success" name='creation'>Créer</button>
 
-<body>
-    <form>
-        <div class="form-group">
-            <label for="email">Adresse Email</label>
-            <input type="email" class="form-control" id="email" aria-describedby="emailHelp"
-                placeholder="Saisir votre Adresse">
-
-        </div>
-        <div class="form-group">
-            <label for="password">Mot de Passe</label>
-            <input type="password" class="form-control" id="password" placeholder="Mot de Passe">
-        </div>
-
-        <button type="submit" class="btn btn-primary">Se connecter</button>
-
-    </form>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-        crossorigin="anonymous"></script>
-
-
-</body>
-
-
-</html>
+</form>
+<?php include __DIR__ . '/footer.php';

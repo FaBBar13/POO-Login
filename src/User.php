@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/ConnectBdd.php';
+require_once __DIR__ . '\ConnectBdd.php';
 
 class User extends ConnectBdd
 {
@@ -33,12 +33,18 @@ class User extends ConnectBdd
             'INSERT INTO users (id_email,id_pwd,id_nom,id_prenom) VALUES (:email,:pwd,:nom,:prenom)'
         );
 
-        return $req->execute([
-            ':email' => $email,
-            ':pwd' => password_hash($pwd, PASSWORD_DEFAULT),
-            ':nom' => $nom,
-            ':prenom' => $prenom
-        ]);
+        try {
+            return $req->execute([
+                ':email' => $email,
+                ':pwd' => password_hash($pwd, PASSWORD_DEFAULT),
+                ':nom' => $nom,
+                ':prenom' => $prenom
+            ]);
+        } catch (PDOException $e) {
+            return false;
+        }
+
+
 
     }
 
@@ -50,7 +56,6 @@ class User extends ConnectBdd
 
         if ($req->execute([$email]) && $item = $req->fetch()) {
             if (password_verify($pwd, $item['id_pwd'])) {
-
                 return new User(
                     $item['id_user'],
                     $item['id_email'],
@@ -58,13 +63,30 @@ class User extends ConnectBdd
                     $item['id_nom'],
                     $item['id_prenom']
                 );
+
             }
 
         }
         return null;
     }
 
+    public function getIdUser()
+    {
+        return $this->id_user;
+    }
 
+    public function getIdEmail()
+    {
+        return $this->id_email;
+    }
+    public function getIdNom()
+    {
+        return $this->id_nom;
+    }
+    public function getIdPrenom()
+    {
+        return $this->id_prenom;
+    }
 
 
 
